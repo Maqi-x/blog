@@ -1,0 +1,19 @@
+:name: First post
+:desc: Nothing special. Just a dummy post for testing.
+
+:: Comment
+
+== H1
+--- H2
+
+Hello, world!
+
+*bold*
+/italic/
+`code`
+
+```c
+int main() {
+    foo();
+}
+```
