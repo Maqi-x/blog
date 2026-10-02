@@ -1,0 +1,3 @@
+[submodule "deps/strlib"]
+	path = deps/strlib
+	url = https://github.com/maqi-x/strlib.git

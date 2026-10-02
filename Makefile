@@ -8,6 +8,7 @@ rwildcard = \
 	$(filter $(subst *,%,$(2)),$(wildcard $(1)/$(2)))
 
 SRC_DIR     := src
+DEPS_DIR    := deps
 INCLUDE_DIR := include
 
 OBJ_ROOT_DIR := build/$(BUILD)/obj
@@ -17,12 +18,15 @@ OUT_DIR  := out/$(BUILD)
 LIB_DIR  := $(OUT_DIR)/lib
 BIN_DIR  := $(OUT_DIR)/bin
 
-BLOG_LIB_STATIC := $(LIB_DIR)/libblog.a
+BLOG_LIB := $(LIB_DIR)/libblog.a
 
 CSTD     := -std=c11
 WARNINGS := -Wall -Wextra -Werror=implicit-fallthrough
 
-CFLAGS_COMMON := $(CSTD) $(WARNINGS) -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools
+CFLAGS_COMMON := \
+	$(CSTD) $(WARNINGS) \
+	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools \
+	-I$(DEPS_DIR)/strlib/src
 
 ifeq ($(BUILD),debug)
 	CFLAGS  := $(CFLAGS_COMMON) -Og -g -fsanitize=address,undefined
@@ -44,10 +48,10 @@ TOOLS_EXES := $(foreach tool,$(TOOL_NAMES),$(BIN_DIR)/$(tool))
 .PHONY: all clean lib tools
 
 all: lib tools
-lib: $(BLOG_LIB_STATIC)
+lib: $(BLOG_LIB)
 tools: $(TOOLS_EXES)
 
-$(BLOG_LIB_STATIC): $(BLOG_OBJS)
+$(BLOG_LIB): $(BLOG_OBJS)
 	@mkdir -p $(dir $@)
 	$(AR) rcs $@ $^
 
@@ -55,9 +59,9 @@ define TOOL_RULE
 TOOL_SRCS_$(1) := $$(call rwildcard,$(SRC_DIR)/tools/$(1),*.c)
 TOOL_OBJS_$(1) := $$(patsubst %.c,$$(OBJ_ROOT_DIR)/%.o,$$(TOOL_SRCS_$(1)))
 
-$$(BIN_DIR)/$(1): $$(TOOL_OBJS_$(1)) $(BLOG_LIB_STATIC)
+$$(BIN_DIR)/$(1): $$(TOOL_OBJS_$(1)) $(BLOG_LIB)
 	@mkdir -p $$(dir $$@)
-	$$(CC) $$(TOOL_OBJS_$(1)) $(BLOG_LIB_STATIC) $$(LDFLAGS) -o $$@
+	$$(CC) $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $$(LDFLAGS) -o $$@
 endef
 
 $(foreach tool,$(TOOL_NAMES),$(eval $(call TOOL_RULE,$(tool))))
@@ -80,7 +84,7 @@ INCDIR ?= $(PREFIX)/include
 install: all
 	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCDIR)
 	$(foreach tool,$(TOOL_NAMES),install -m755 $(BIN_DIR)/$(tool) $(DESTDIR)$(BINDIR)/$(tool);)
-	install -m644 $(BLOG_LIB_STATIC) $(DESTDIR)$(LIBDIR)/libblog.a
+	install -m644 $(BLOG_LIB) $(DESTDIR)$(LIBDIR)/libblog.a
 	cp -R $(INCLUDE_DIR)/blog $(DESTDIR)$(INCDIR)/
 
 uninstall:
