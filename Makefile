@@ -10,6 +10,8 @@ rwildcard = \
 SRC_DIR     := src
 DEPS_DIR    := deps
 INCLUDE_DIR := include
+TEMPLATE_DIR := template
+GEN_DIR      := build/gen
 
 OBJ_ROOT_DIR := build/$(BUILD)/obj
 DEP_ROOT_DIR := build/$(BUILD)/dep
@@ -17,6 +19,9 @@ DEP_ROOT_DIR := build/$(BUILD)/dep
 OUT_DIR  := out/$(BUILD)
 LIB_DIR  := $(OUT_DIR)/lib
 BIN_DIR  := $(OUT_DIR)/bin
+
+TEMPLATE_SRCS := $(wildcard $(TEMPLATE_DIR)/*.yate)
+GEN_HEADERS   := $(patsubst $(TEMPLATE_DIR)/%.yate,$(GEN_DIR)/%.h,$(TEMPLATE_SRCS))
 
 BLOG_LIB := $(LIB_DIR)/libblog.a
 
@@ -28,7 +33,7 @@ WARNINGS := -Wall -Wextra -Werror=implicit-fallthrough
 
 CFLAGS_COMMON := \
 	$(CSTD) $(WARNINGS) \
-	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools \
+	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools -I$(GEN_DIR) \
 	-I$(DEPS_DIR)/strlib/src -I$(DEPS_DIR)/vector \
 	-I$(DEPS_DIR)/argparse
 
@@ -63,12 +68,18 @@ define TOOL_RULE
 TOOL_SRCS_$(1) := $$(call rwildcard,$(SRC_DIR)/tools/$(1),*.c)
 TOOL_OBJS_$(1) := $$(patsubst %.c,$$(OBJ_ROOT_DIR)/%.o,$$(TOOL_SRCS_$(1)))
 
-$$(BIN_DIR)/$(1): $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $(ARGPARSE_OBJ)
+$$(BIN_DIR)/$(1): $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $(ARGPARSE_OBJ) $(if $(filter yate,$(1)),,$(GEN_HEADERS))
 	@mkdir -p $$(dir $$@)
 	$$(CC) $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $(ARGPARSE_OBJ) $$(LDFLAGS) -o $$@
+
+$$(TOOL_OBJS_$(1)): $(if $(filter yate,$(1)),,$(GEN_HEADERS))
 endef
 
 $(foreach tool,$(TOOL_NAMES),$(eval $(call TOOL_RULE,$(tool))))
+
+$(GEN_DIR)/%.h: $(TEMPLATE_DIR)/%.yate $(BIN_DIR)/yate
+	@mkdir -p $(dir $@)
+	$(BIN_DIR)/yate -i $< -o $@
 
 ALL_C_SRCS := $(BLOG_SRCS) $(ARGPARSE_SRC) $(foreach tool,$(TOOL_NAMES),$(TOOL_SRCS_$(tool)))
 DEPS       := $(patsubst %.c,$(DEP_ROOT_DIR)/%.d,$(ALL_C_SRCS))

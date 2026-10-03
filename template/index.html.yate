@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example</title>
+  </head>
+  <body>
+    <p>Posts:</p>
+    <ul>
+      $for (const BlPost* post = blog->begin; post < blog->end; ++post) {
+        <li>${ output(post->meta.title); }$</li>
+      $}
+    </ul>
+  </body>
+</html>
+

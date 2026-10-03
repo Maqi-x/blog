@@ -22,7 +22,7 @@ void cescape(char c, FILE* out) {
 
 void enter_output(FILE* out, bool* in) {
     if (!*in) {
-        fputs("\noutput(\"", out);
+        fputs("\nsoutput(\"", out);
         *in = true;
     }
 }
@@ -38,6 +38,8 @@ void yate_translate(const char* input_path, FILE* out) {
     if (sv_is_null(template)) {
         bl_error("failed to read the input file");
     }
+
+    fprintf(out, "// GENERATED FROM %s. do not modify directly.\n\n", input_path);
 
     bool code = false;
     bool code_inline;
