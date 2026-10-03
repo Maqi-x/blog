@@ -6,12 +6,15 @@
 #include <blog/lexer.h>
 #include <blog/parser.h>
 
+#include <libgen.h>
+#include <string.h>
 #include <stdio.h>
 
 VECTOR_DEFINE(BlParts, bl_parts, BlPart);
 VECTOR_DEFINE(BlBlocks, bl_blocks, BlBlock);
 
 BlPost bl_post_open(const char* path) {
+
     StringView content = bl_read_entire_file(path);
     if (sv_is_null(content)) {
         bl_error("failed to read the file");
@@ -23,8 +26,22 @@ BlPost bl_post_open(const char* path) {
     BlParser parser;
     bl_parser_init(&parser, &lexer);
 
+
+    BlPost post = bl_parse_post(&parser);
+
+    usize path_len = strlen(path);
+    char* pm = malloc(path_len + 1);
+    memcpy(pm, path, path_len + 1);
+
+    char* cname = basename(pm);
+    StringView name = sv_from_cstr(cname);
+
+    if (sv_is_null(post.meta.id)) {
+        post.meta.id = sv_trim_suffix(name, SV(".post"));
+    }
+
     // content intentionally leaked
-    return bl_parse_post(&parser);
+    return post;
 }
 
 static void print_part_flags(BlPartFlags flags, FILE* out) {
