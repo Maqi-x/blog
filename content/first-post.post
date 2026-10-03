@@ -1,5 +1,6 @@
-:name: First post
+:title: First post
 :desc: Nothing special. Just a dummy post for testing.
+:: :id: overriden
 
 :: Comment
 

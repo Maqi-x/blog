@@ -1,3 +1,6 @@
 [submodule "deps/strlib"]
 	path = deps/strlib
 	url = https://github.com/maqi-x/strlib.git
+[submodule "deps/vector"]
+	path = deps/vector
+	url = https://github.com/RolandMarchand/vector.h

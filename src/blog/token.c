@@ -1,34 +1,31 @@
 #include <blog/token.h>
 
+StringView bl_token_type_name(BlTokenType tt) {
+    switch (tt) {
+    case BL_TT_EOF:     return SV("eof");
+
+    case BL_TT_ATTR:    return SV("attr");
+    case BL_TT_TEXT:    return SV("text");
+    case BL_TT_COMMENT: return SV("comment");
+
+    case BL_TT_BOLD:    return SV("bold");
+    case BL_TT_ITALIC:  return SV("italic");
+    case BL_TT_H1:      return SV("h1");
+    case BL_TT_H2:      return SV("h2");
+
+    case BL_TT_HARDBREAK: return SV("hard-break");
+    case BL_TT_SOFTBREAK: return SV("soft-break");
+
+    case BL_TT_CODE_INLINE: return SV("code-inline");
+    case BL_TT_CODE_BLOCK:  return SV("code-block");
+    }
+
+    bl_unreachable();
+}
+
 void bl_token_print(BlToken token, FILE* out) {
     fprintf(out, "%u:%u:", token.line, token.col);
-
-    switch (token.type) {
-    case BL_TT_EOF:     fputs("eof", out);     break;
-
-    case BL_TT_ATTR:    fputs("attr", out);    break;
-    case BL_TT_TEXT:    fputs("text", out);    break;
-    case BL_TT_COMMENT: fputs("comment", out); break;
-
-    case BL_TT_BOLD:    fputs("bold", out);    break;
-    case BL_TT_ITALIC:  fputs("italic", out);  break;
-    case BL_TT_H1:      fputs("h1", out);      break;
-    case BL_TT_H2:      fputs("h2", out);      break;
-
-    case BL_TT_HARDBREAK:
-        fputs("hard-break", out);
-        break;
-    case BL_TT_SOFTBREAK:
-        fputs("soft-break", out);
-        break;
-
-    case BL_TT_CODE_INLINE:
-        fputs("code-inline", out);
-        break;
-    case BL_TT_CODE_BLOCK:
-        fputs("code-block", out);
-        break;
-    }
+    sv_print(bl_token_type_name(token.type), out);
 
     if (!sv_is_null(token.lexeme)) {
         fputc('(', out);

@@ -1,4 +1,5 @@
 #include <blog/lexer.h>
+#include <blog/parser.h>
 
 int main() {
     BlLexer lexer;
@@ -11,4 +12,11 @@ int main() {
         bl_token_print(token, stdout);
         putchar('\n');
     }
+
+    putchar('\n');
+
+    BlParser parser;
+    bl_parser_init(&parser, &lexer);
+    BlPost post = bl_parse_post(&parser);
+    bl_post_print(&post, stdout);
 }

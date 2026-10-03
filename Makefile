@@ -26,7 +26,7 @@ WARNINGS := -Wall -Wextra -Werror=implicit-fallthrough
 CFLAGS_COMMON := \
 	$(CSTD) $(WARNINGS) \
 	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools \
-	-I$(DEPS_DIR)/strlib/src
+	-I$(DEPS_DIR)/strlib/src -I$(DEPS_DIR)/vector
 
 ifeq ($(BUILD),debug)
 	CFLAGS  := $(CFLAGS_COMMON) -Og -g -fsanitize=address,undefined

@@ -28,4 +28,5 @@ typedef struct {
     uint line, col;
 } BlToken;
 
+StringView bl_token_type_name(BlTokenType tt);
 void bl_token_print(BlToken token, FILE* out);
