@@ -6,6 +6,11 @@
 typedef struct {
     BlLexer* lexer;
     BlToken lookahead;
+
+    BlBlocks blocks;
+    BlParts parts;
+
+    BlPartFlags pf;
 } BlParser;
 
 void bl_parser_init(BlParser* parser, BlLexer* lexer);

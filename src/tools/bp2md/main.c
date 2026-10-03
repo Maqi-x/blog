@@ -4,8 +4,28 @@
 int main() {
     BlLexer lexer;
     bl_lexer_init(&lexer, SV(
-        ":shit: value!\n*He/ll/o,* world!\n\n== Title\n--- Subtitle\n:: Comment\n"
-        "Blah blah blah\n`code1`, ```code2```, */x/*"));
+        ":title: First post\n"
+        ":desc: Nothing special. Just a dummy post for testing.\n"
+        ":: :id: overriden\n"
+        "\n"
+        ":: Comment\n"
+        "\n"
+        "== H1\n"
+        "--- H2\n"
+        "\n"
+        "Hello, world!\n"
+        "\n"
+        "*bold*\n"
+        "/italic/\n"
+        "`code`\n"
+        "*mixed /mixed/ `mixed` /`mixed`/*"
+        "\n"
+        "```c\n"
+        "int main() {\n"
+        "    foo();\n"
+        "}\n"
+        "```\n"
+    ));
 
     BlToken token;
     while ((token = bl_lexer_next(&lexer)).type != BL_TT_EOF) {
@@ -14,6 +34,9 @@ int main() {
     }
 
     putchar('\n');
+
+    // TODO: bl_lexer_reset
+    bl_lexer_init(&lexer, lexer.input);
 
     BlParser parser;
     bl_parser_init(&parser, &lexer);

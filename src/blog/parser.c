@@ -2,6 +2,12 @@
 #include <blog/error.h>
 #include <blog/post.h>
 
+#define PUSH_BLOCK(VEC, ...) \
+    bl_blocks_push(VEC, (BlBlock) __VA_ARGS__)
+
+#define PUSH_PART(VEC, ...) \
+    bl_parts_push(VEC, (BlPart) __VA_ARGS__)
+
 void bl_parser_init(BlParser* parser, BlLexer* lexer) {
     *parser = (BlParser) {
         .lexer = lexer,
@@ -45,13 +51,58 @@ BlToken bl_parser_expect(BlParser* parser, BlTokenType type) {
     );
 }
 
+static void flush(BlParser* parser) {
+    if (VECTOR_SIZE(&parser->parts) != 0) {
+        PUSH_BLOCK(&parser->blocks, {
+            .kind = BL_BLOCK_TEXT,
+            .as.parts = parser->parts,
+        });
+
+        //bl_parts_clear(&parser->parts);
+        parser->parts = (BlParts) {0};
+    }
+}
+
 BlPost bl_parse_post(BlParser* parser) {
-    (void) parser;
+    while (!check(parser, BL_TT_EOF)) {
+        BlToken tok = advance(parser);
+        switch (tok.type) {
+        case BL_TT_TEXT:
+            PUSH_PART(&parser->parts, {
+                .content = tok.lexeme,
+                .flags = parser->pf,
+            });
+            continue;
+        case BL_TT_CODE_INLINE:
+            PUSH_PART(&parser->parts, {
+                .content = tok.lexeme,
+                .flags = parser->pf | BL_PART_MONO,
+            });
+            continue;
+        case BL_TT_BOLD:
+            parser->pf ^= BL_PART_BOLD;
+            break;
+        case BL_TT_ITALIC:
+            parser->pf ^= BL_PART_ITALIC;
+            break;
+        default:
+            flush(parser);
+        }
+    }
+
+    if (parser->pf & BL_PART_BOLD) {
+        bl_error("unterminated *bold*");
+    }
+    if (parser->pf & BL_PART_ITALIC) {
+        bl_error("unterminated /italic/");
+    }
+
     return (BlPost) {
         .meta = {
             .title = SV("My cool post!"),
             .desc = SV("Post about cool stuff"),
             .id = SV("my-cool-post"),
         },
+        .blocks = parser->blocks,
     };
 }
