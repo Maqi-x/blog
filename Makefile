@@ -20,13 +20,17 @@ BIN_DIR  := $(OUT_DIR)/bin
 
 BLOG_LIB := $(LIB_DIR)/libblog.a
 
+ARGPARSE_SRC := $(DEPS_DIR)/argparse/argparse.c
+ARGPARSE_OBJ := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(ARGPARSE_SRC))
+
 CSTD     := -std=c11
 WARNINGS := -Wall -Wextra -Werror=implicit-fallthrough
 
 CFLAGS_COMMON := \
 	$(CSTD) $(WARNINGS) \
 	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools \
-	-I$(DEPS_DIR)/strlib/src -I$(DEPS_DIR)/vector
+	-I$(DEPS_DIR)/strlib/src -I$(DEPS_DIR)/vector \
+	-I$(DEPS_DIR)/argparse
 
 ifeq ($(BUILD),debug)
 	CFLAGS  := $(CFLAGS_COMMON) -Og -g -fsanitize=address,undefined
@@ -59,14 +63,14 @@ define TOOL_RULE
 TOOL_SRCS_$(1) := $$(call rwildcard,$(SRC_DIR)/tools/$(1),*.c)
 TOOL_OBJS_$(1) := $$(patsubst %.c,$$(OBJ_ROOT_DIR)/%.o,$$(TOOL_SRCS_$(1)))
 
-$$(BIN_DIR)/$(1): $$(TOOL_OBJS_$(1)) $(BLOG_LIB)
+$$(BIN_DIR)/$(1): $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $(ARGPARSE_OBJ)
 	@mkdir -p $$(dir $$@)
-	$$(CC) $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $$(LDFLAGS) -o $$@
+	$$(CC) $$(TOOL_OBJS_$(1)) $(BLOG_LIB) $(ARGPARSE_OBJ) $$(LDFLAGS) -o $$@
 endef
 
 $(foreach tool,$(TOOL_NAMES),$(eval $(call TOOL_RULE,$(tool))))
 
-ALL_C_SRCS := $(BLOG_SRCS) $(foreach tool,$(TOOL_NAMES),$(TOOL_SRCS_$(tool)))
+ALL_C_SRCS := $(BLOG_SRCS) $(ARGPARSE_SRC) $(foreach tool,$(TOOL_NAMES),$(TOOL_SRCS_$(tool)))
 DEPS       := $(patsubst %.c,$(DEP_ROOT_DIR)/%.d,$(ALL_C_SRCS))
 
 $(OBJ_ROOT_DIR)/%.o: %.c

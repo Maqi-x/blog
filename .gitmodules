@@ -4,3 +4,6 @@
 [submodule "deps/vector"]
 	path = deps/vector
 	url = https://github.com/RolandMarchand/vector.h
+[submodule "deps/argparse"]
+	path = deps/argparse
+	url = https://github.com/cofyc/argparse.git
