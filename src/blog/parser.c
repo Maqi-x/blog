@@ -30,14 +30,6 @@ static bool check(const BlParser* parser, BlTokenType type) {
     return parser->lookahead.type == type;
 }
 
-//static bool match(BlParser* parser, BlTokenType type) {
-//    if (!check(parser, type))
-//        return false;
-//
-//    advance(parser);
-//    return true;
-//}
-
 BlToken bl_parser_expect(BlParser* parser, BlTokenType type) {
     if (check(parser, type))
         return advance(parser);
@@ -68,6 +60,24 @@ static void push_text_part(BlParser* parser, StringView content, BlPartFlags fla
         .content = content,
         .flags = parser->pf | flags,
     });
+}
+
+static void parse_attr(BlParser* parser, BlToken attr, BlPostMeta* meta) {
+    BlToken value = bl_parser_expect(parser, BL_TT_TEXT);
+    StringView text = sv_trim(value.lexeme, isspace);
+
+    if (sv_eql(attr.lexeme, SV("title"))) {
+        meta->title = text;
+    } else if (sv_eql(attr.lexeme, SV("desc"))) {
+        meta->desc = text;
+    } else if (sv_eql(attr.lexeme, SV("id"))) {
+        meta->id = text;
+    } else {
+        bl_error(
+            "%u:%u: unknown attribute "SV_FMT,
+            attr.line, attr.col, SV_FARG(attr.lexeme)
+        );
+    }
 }
 
 static void push_line_block(BlParser* parser, BlBlockKind kind, StringView content) {
@@ -109,9 +119,14 @@ static void push_code_block(BlParser* parser, StringView content) {
 }
 
 BlPost bl_parse_post(BlParser* parser) {
+    BlPostMeta meta = { 0 };
+
     while (!check(parser, BL_TT_EOF)) {
         BlToken tok = advance(parser);
         switch (tok.type) {
+        case BL_TT_ATTR:
+            parse_attr(parser, tok, &meta);
+            continue;
         case BL_TT_TEXT:
             push_text_part(parser, tok.lexeme, 0);
             continue;
@@ -154,11 +169,7 @@ BlPost bl_parse_post(BlParser* parser) {
         bl_error("unterminated /italic/");
 
     return (BlPost) {
-        .meta = {
-            .title = SV("My cool post!"),
-            .desc = SV("Post about cool stuff"),
-            .id = SV("my-cool-post"),
-        },
+        .meta = meta,
         .blocks = parser->blocks,
     };
 }
