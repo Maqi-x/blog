@@ -7,6 +7,7 @@ void generate_index_page(BlBlog* blog) {
     #define output(s) sb_append(&sb, s)
     #include "index.html.h"
     #undef output
+    #undef soutput
     sv_print(sb_view(&sb), stdout);
 }
 

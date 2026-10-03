@@ -10,18 +10,22 @@ rwildcard = \
 SRC_DIR     := src
 DEPS_DIR    := deps
 INCLUDE_DIR := include
-TEMPLATE_DIR := template
-GEN_DIR      := build/gen
+PAGE_DIR    := page
+GEN_DIR     := build/gen
 
 OBJ_ROOT_DIR := build/$(BUILD)/obj
 DEP_ROOT_DIR := build/$(BUILD)/dep
 
-OUT_DIR  := out/$(BUILD)
-LIB_DIR  := $(OUT_DIR)/lib
-BIN_DIR  := $(OUT_DIR)/bin
+OUT_DIR := out/$(BUILD)
+LIB_DIR := $(OUT_DIR)/lib
+BIN_DIR := $(OUT_DIR)/bin
 
-TEMPLATE_SRCS := $(wildcard $(TEMPLATE_DIR)/*.yate)
-GEN_HEADERS   := $(patsubst $(TEMPLATE_DIR)/%.yate,$(GEN_DIR)/%.h,$(TEMPLATE_SRCS))
+PAGE_SRCS := $(wildcard $(PAGE_DIR)/*.yate)
+GEN_HEADERS   := $(patsubst $(PAGE_DIR)/%.yate,$(GEN_DIR)/%.h,$(PAGE_SRCS))
+
+DIST_DIR   := out/dist
+PAGE_FILES := $(shell find $(PAGE_DIR) -type f ! -name '*.yate')
+DIST_FILES := $(patsubst $(PAGE_DIR)/%,$(DIST_DIR)/%,$(PAGE_FILES))
 
 BLOG_LIB := $(LIB_DIR)/libblog.a
 
@@ -54,11 +58,12 @@ TOOL_DIRS  := $(sort $(dir $(wildcard $(SRC_DIR)/tools/*/)))
 TOOL_NAMES := $(patsubst $(SRC_DIR)/tools/%/,%,$(TOOL_DIRS))
 TOOLS_EXES := $(foreach tool,$(TOOL_NAMES),$(BIN_DIR)/$(tool))
 
-.PHONY: all clean lib tools
+.PHONY: all clean lib tools dist
 
 all: lib tools
 lib: $(BLOG_LIB)
 tools: $(TOOLS_EXES)
+dist: $(DIST_FILES) $(DIST_DIR)/index.html
 
 $(BLOG_LIB): $(BLOG_OBJS)
 	@mkdir -p $(dir $@)
@@ -77,9 +82,17 @@ endef
 
 $(foreach tool,$(TOOL_NAMES),$(eval $(call TOOL_RULE,$(tool))))
 
-$(GEN_DIR)/%.h: $(TEMPLATE_DIR)/%.yate $(BIN_DIR)/yate
+$(GEN_DIR)/%.h: $(PAGE_DIR)/%.yate $(BIN_DIR)/yate
 	@mkdir -p $(dir $@)
 	$(BIN_DIR)/yate -i $< -o $@
+
+$(DIST_DIR)/%: $(PAGE_DIR)/%
+	@mkdir -p $(dir $@)
+	cp $< $@
+
+$(DIST_DIR)/index.html: $(BIN_DIR)/blog2html $(GEN_HEADERS)
+	@mkdir -p $(dir $@)
+	$(BIN_DIR)/blog2html > $@
 
 ALL_C_SRCS := $(BLOG_SRCS) $(ARGPARSE_SRC) $(foreach tool,$(TOOL_NAMES),$(TOOL_SRCS_$(tool)))
 DEPS       := $(patsubst %.c,$(DEP_ROOT_DIR)/%.d,$(ALL_C_SRCS))
