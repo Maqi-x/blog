@@ -163,6 +163,8 @@ BlPost bl_parse_post(BlParser* parser) {
         }
     }
 
+    flush(parser);
+
     if (parser->pf & BL_PART_BOLD)
         bl_error("unterminated *bold*");
     if (parser->pf & BL_PART_ITALIC)

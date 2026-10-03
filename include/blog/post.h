@@ -57,4 +57,5 @@ typedef struct {
     BlBlocks blocks;
 } BlPost;
 
-void bl_post_print(const BlPost* post, FILE* out);
+BlPost bl_post_open(const char* path);
+void bl_post_print(const BlPost* post, const char* pre, FILE* out);
