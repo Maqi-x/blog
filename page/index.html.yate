@@ -7,10 +7,13 @@
   <body>
     <p>Posts:</p>
     <ul>
-      $for (const BlPost* post = blog->begin; post < blog->end; ++post) {
-        <li>${ output(post->meta.title); }$</li>
+      $for (const BlPost* post = blog.begin; post < blog.end; ++post) {
+        <li>
+          <a href="posts/${ output(post->meta.id); }$.html">
+            $output(post->meta.title);
+          </a>
+        </li>
       $}
     </ul>
   </body>
 </html>
-
