@@ -63,21 +63,79 @@ static void flush(BlParser* parser) {
     }
 }
 
+static void push_text_part(BlParser* parser, StringView content, BlPartFlags flags) {
+    PUSH_PART(&parser->parts, {
+        .content = content,
+        .flags = parser->pf | flags,
+    });
+}
+
+static void push_line_block(BlParser* parser, BlBlockKind kind, StringView content) {
+    BlParts parts = {0};
+    PUSH_PART(&parts, {
+        .content = content,
+        .flags = 0,
+    });
+
+    PUSH_BLOCK(&parser->blocks, {
+        .kind = kind,
+        .as.parts = parts,
+    });
+}
+
+static void push_code_block(BlParser* parser, StringView content) {
+    StringView lang, text;
+
+    uint i = 0;
+    while (i < content.len) {
+        if (content.data[i++] == '\n') break;
+    }
+
+    if (i == content.len) {
+        lang = SV_NULL;
+        text = content;
+    } else {
+        lang = sv_slice(content, 0, i - 1);
+        text = sv_slice(content, i, content.len);
+    }
+
+    PUSH_BLOCK(&parser->blocks, {
+        .kind = BL_BLOCK_CODE,
+        .as.code = {
+            .lang = lang,
+            .text = text,
+        },
+    });
+}
+
 BlPost bl_parse_post(BlParser* parser) {
     while (!check(parser, BL_TT_EOF)) {
         BlToken tok = advance(parser);
         switch (tok.type) {
         case BL_TT_TEXT:
-            PUSH_PART(&parser->parts, {
-                .content = tok.lexeme,
-                .flags = parser->pf,
-            });
+            push_text_part(parser, tok.lexeme, 0);
             continue;
         case BL_TT_CODE_INLINE:
-            PUSH_PART(&parser->parts, {
-                .content = tok.lexeme,
-                .flags = parser->pf | BL_PART_MONO,
-            });
+            push_text_part(parser, tok.lexeme, BL_PART_MONO);
+            continue;
+        case BL_TT_SOFTBREAK:
+            if (VECTOR_SIZE(&parser->parts) != 0)
+                push_text_part(parser, SV(" "), 0);
+            continue;
+        case BL_TT_HARDBREAK:
+            flush(parser);
+            continue;
+        case BL_TT_H1:
+            flush(parser);
+            push_line_block(parser, BL_BLOCK_H1, tok.lexeme);
+            continue;
+        case BL_TT_H2:
+            flush(parser);
+            push_line_block(parser, BL_BLOCK_H2, tok.lexeme);
+            continue;
+        case BL_TT_CODE_BLOCK:
+            flush(parser);
+            push_code_block(parser, tok.lexeme);
             continue;
         case BL_TT_BOLD:
             parser->pf ^= BL_PART_BOLD;
@@ -86,16 +144,14 @@ BlPost bl_parse_post(BlParser* parser) {
             parser->pf ^= BL_PART_ITALIC;
             break;
         default:
-            flush(parser);
+            (void)tok.type;
         }
     }
 
-    if (parser->pf & BL_PART_BOLD) {
+    if (parser->pf & BL_PART_BOLD)
         bl_error("unterminated *bold*");
-    }
-    if (parser->pf & BL_PART_ITALIC) {
+    if (parser->pf & BL_PART_ITALIC)
         bl_error("unterminated /italic/");
-    }
 
     return (BlPost) {
         .meta = {

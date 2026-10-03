@@ -14,6 +14,8 @@ int main() {
         "--- H2\n"
         "\n"
         "Hello, world!\n"
+        "This is another line separated with a soft-break\n"
+        "/So it actually displays as one line/\n"
         "\n"
         "*bold*\n"
         "/italic/\n"
