@@ -1,6 +1,7 @@
 #include <blog/blog.h>
 #include <blog/error.h>
 #include <blog/post.h>
+#include <blog/html.h>
 
 #include <argparse.h>
 #include <strlib/sb.h>
@@ -41,10 +42,17 @@ static const char* const usages[] = {
     NULL,
 };
 
-static void render(const char* input_path, FILE* output) {
+void _print_escaped(StringView s, FILE* output) {
+    StringBuf sb;
+    bl_escape_html(&sb, s);
+    sv_print(sb_view(&sb), output);
+    sb_free(&sb);
+}
 
+void render(const char* input_path, FILE* output) {
     #define soutput(s) fputs(s, output)
     #define output(s) sv_print(s, output)
+    #define escape(s) _print_escaped(s, output)
 
 #if RENDER_MODE == RENDER_INDEX
     BlBlog blog = {0};

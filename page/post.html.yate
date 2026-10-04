@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>${ output(post.meta.title); }$</title>
+    <title>${ escape(post.meta.title); }$</title>
     <link rel="stylesheet" href="../style.css">
   </head>
   <body>
     <a href="../index.html">Back to posts list</a>
-    <h1>${ output(post.meta.title); }$</h1>
-    <p>${ output(post.meta.desc); }$</p>
+    <h1>${ escape(post.meta.title); }$</h1>
+    <p>${ escape(post.meta.desc); }$</p>
   </body>
 </html>
