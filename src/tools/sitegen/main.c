@@ -63,6 +63,7 @@ void render(const char* input_path, FILE* output) {
     #include TEMPLATE_HEADER
 #endif
 
+    #undef escape
     #undef output
     #undef soutput
 
