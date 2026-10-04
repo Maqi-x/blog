@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    $#include "topbar.html.h"
     <p>Posts:</p>
     <ul>
       $for (const BlPost* post = blog.begin; post < blog.end; ++post) {

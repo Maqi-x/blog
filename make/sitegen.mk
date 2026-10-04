@@ -4,11 +4,19 @@ DIST_FILES := $(patsubst $(PAGE_DIR)/%,$(DIST_DIR)/%,$(PAGE_FILES))
 POST_SRCS  := $(wildcard content/*.post)
 POST_PAGES := $(patsubst content/%.post,$(DIST_DIR)/posts/%/index.html,$(POST_SRCS))
 
-SITEGEN_SRC       := $(SRC_DIR)/tools/sitegen/main.c
-SITEGEN_INDEX_OBJ := $(OBJ_ROOT_DIR)/src/tools/sitegen/index.o
-SITEGEN_POST_OBJ  := $(OBJ_ROOT_DIR)/src/tools/sitegen/post.o
-SITEGEN_INDEX     := $(BIN_DIR)/sitegen-index
-SITEGEN_POST      := $(BIN_DIR)/sitegen-post
+SITEGEN_SRC         := $(SRC_DIR)/tools/sitegen/main.c
+
+SITEGEN_TOPBAR_OBJ := $(OBJ_ROOT_DIR)/src/tools/sitegen/generic.o
+SITEGEN_INDEX_OBJ  := $(OBJ_ROOT_DIR)/src/tools/sitegen/index.o
+SITEGEN_POST_OBJ   := $(OBJ_ROOT_DIR)/src/tools/sitegen/post.o
+
+SITEGEN_TOPBAR_DEP := $(DEP_ROOT_DIR)/src/tools/sitegen/generic.d
+SITEGEN_INDEX_DEP  := $(DEP_ROOT_DIR)/src/tools/sitegen/index.d
+SITEGEN_POST_DEP   := $(DEP_ROOT_DIR)/src/tools/sitegen/post.d
+
+SITEGEN_TOPBAR     := $(BIN_DIR)/sitegen-generic
+SITEGEN_INDEX      := $(BIN_DIR)/sitegen-index
+SITEGEN_POST       := $(BIN_DIR)/sitegen-post
 
 SITEGEN_DEPS      := \
 	$(DEP_ROOT_DIR)/src/tools/sitegen/index.d \
@@ -48,14 +56,20 @@ $(SITEGEN_POST): $(SITEGEN_POST_OBJ) $(BLOG_LIB) $(ARGPARSE_OBJ)
 	@mkdir -p $(dir $@)
 	$(CC) $^ $(LDFLAGS) -o $@
 
-$(SITEGEN_INDEX_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/index.html.h
+$(SITEGEN_TOPBAR_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/topbar.html.h
 	@mkdir -p $(dir $@)
-	@mkdir -p $(dir $(DEP_ROOT_DIR)/src/tools/sitegen/index.d)
-	$(CC) $(CFLAGS) -DRENDER_MODE=0 -DTEMPLATE_HEADER=\"index.html.h\" \
-		-MMD -MP -MF $(DEP_ROOT_DIR)/src/tools/sitegen/index.d -c $< -o $@
+	@mkdir -p $(dir $(SITEGEN_TOPBAR_DEP))
+	$(CC) $(CFLAGS) -DMODE=1 -DTEMPLATE_HEADER=\"topbar.html.h\" \
+		-MMD -MP -MF $(SITEGEN_TOPBAR_DEP) -c $< -o $@
 
-$(SITEGEN_POST_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/post.html.h
+$(SITEGEN_INDEX_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/index.html.h $(GEN_DIR)/topbar.html.h
 	@mkdir -p $(dir $@)
-	@mkdir -p $(dir $(DEP_ROOT_DIR)/src/tools/sitegen/post.d)
-	$(CC) $(CFLAGS) -DRENDER_MODE=1 -DTEMPLATE_HEADER=\"post.html.h\" \
-		-MMD -MP -MF $(DEP_ROOT_DIR)/src/tools/sitegen/post.d -c $< -o $@
+	@mkdir -p $(dir $(SITEGEN_INDEX_DEP))
+	$(CC) $(CFLAGS) -DMODE=1 -DTEMPLATE_HEADER=\"index.html.h\" \
+		-MMD -MP -MF $(SITEGEN_INDEX_DEP) -c $< -o $@
+
+$(SITEGEN_POST_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/post.html.h $(GEN_DIR)/topbar.html.h
+	@mkdir -p $(dir $@)
+	@mkdir -p $(dir $(SITEGEN_POST_DEP))
+	$(CC) $(CFLAGS) -DMODE=2 -DTEMPLATE_HEADER=\"post.html.h\" \
+		-MMD -MP -MF $(SITEGEN_POST_DEP) -c $< -o $@
