@@ -1,1 +1,8 @@
+body {
+  font-family: 'Clarity City', sans-serif;
+}
 
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-ligatures: none;
+}
