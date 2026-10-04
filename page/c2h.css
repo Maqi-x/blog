@@ -74,13 +74,14 @@
 
 div.c2h-code {
     padding: 10px;
-    border-radius: 3px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
 
     font-family: monospace;
     font-size: 16px;
 
-    color: white;
-    background: hsl(210, 15%, 22%);
+    color: var(--color-text);
+    background: var(--color-surface);
 }
 
 div.c2h-code-inner::-webkit-scrollbar {
@@ -89,7 +90,7 @@ div.c2h-code-inner::-webkit-scrollbar {
 }
 
 div.c2h-code-inner::-webkit-scrollbar-thumb {
-    background: hsla(210, 13%, 40%, 0.7);
+    background: var(--color-border);
 }
 
 div.c2h-code-inner {
@@ -98,7 +99,7 @@ div.c2h-code-inner {
     max-height: inherit;
 
     overflow: auto;
-    scrollbar-color: hsla(210, 13%, 40%, 0.7) transparent;
+    scrollbar-color: var(--color-border) transparent;
 }
 
 div.c2h-code table {
@@ -107,7 +108,7 @@ div.c2h-code table {
 }
 
 div.c2h-code table td {
-    color: white;
+    color: var(--color-text);
 
     /* The vertical align is nice because for lines that
      * are broken in more lines, this makes the line
@@ -125,7 +126,8 @@ div.c2h-code table td:first-child {
 
     text-align: right;
     padding: 0 10px;
-    color: hsla(210, 13%, 40%, 0.7);
+    color: var(--color-text);
+    opacity: .45;
 }
 
 div.c2h-code table td:last-child {
@@ -183,4 +185,3 @@ div.c2h-code table td:last-child {
 .c2h-fcallname {
     color: hsl(210, 50%, 60%);
 }
-

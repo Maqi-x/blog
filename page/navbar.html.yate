@@ -1,0 +1,10 @@
+<nav class="navbar">
+  <link rel="stylesheet" href="/navbar.css">
+  <div class="navbar-inner">
+    <div class="nav-links">
+      <a class="github-link" href="https://github.com/maqi-x">
+        <img src="https://github.githubassets.com/favicons/favicon.png" alt="">
+      </a>
+    </div>
+  </div>
+</nav>

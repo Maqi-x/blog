@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Example</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -11,20 +12,21 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    $#include "topbar.html.h"
-    <p>Posts:</p>
-    <ul>
+    $#include "navbar.html.h"
+    <main class="posts-page">
+      <h1>Posts</h1>
+      <div class="post-tiles">
       $for (const BlPost* post = blog.begin; post < blog.end; ++post) {
-        <li>
-          <a href="posts/${ escape(post->meta.id); }$">
-            $escape(post->meta.title);
-          </a>
-        </li>
+        <a class="post-tile" href="posts/${ escape(post->meta.id); }$">
+          <h2>${ escape(post->meta.title); }$</h2>
+          <p>${ escape(post->meta.desc); }$</p>
+        </a>
       $}
-    </ul>
+      </div>
+    </main>
   </body>
 </html>
 

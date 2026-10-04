@@ -1,0 +1,86 @@
+:root {
+  --color-background: #080808;
+  --color-surface: #030303;
+  --color-border: #151521;
+  --color-accent: rgba(255, 255, 255, 0.3);
+  --color-text: #e5ebf5;
+  --color-link: #3fbff8;
+  --color-link-hover: #7dd3ff;
+}
+
+body {
+  margin: 0;
+  padding: 32px 32px 48px 96px;
+  color: var(--color-text);
+  background: var(--color-background);
+  font-family: 'Clarity City', sans-serif;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-ligatures: none;
+}
+
+a {
+  color: var(--color-link);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+.posts-page {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.posts-page h1 {
+  margin: 0 0 32px;
+}
+
+.post-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.post-tile {
+  flex: 1 1 260px;
+  max-width: 320px;
+  min-height: 150px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-surface);
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.post-tile:hover {
+  border-color: var(--color-accent);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.post-tile:active {
+  border-color: var(--color-accent);
+  text-decoration: none;
+  transform: translateY(-4px);
+}
+
+.post-tile h2 {
+  margin: 0 0 12px;
+  color: var(--color-text);
+  font-size: 1.1rem;
+}
+
+.post-tile p {
+  margin: 0;
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
