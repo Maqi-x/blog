@@ -17,3 +17,10 @@ int main() {
     foo();
 }
 ```
+
+```python
+print("Hello!")
+class Shit:
+    def method():
+        print("Keep Yourself Safe")
+```

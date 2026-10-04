@@ -38,7 +38,11 @@ void bl_parts_to_html(StringBuf* sb, const BlParts* parts) {
 }
 
 static void code_block_to_html(StringBuf* sb, const BlCode* code) {
-    if (sv_eql(code->lang, SV("c"))) {
+    // c2html seems to work with other languages just fine.
+    // of course not everything is highlighted but it's still
+    // way better than no highlighting at all.
+    //if (sv_eql(code->lang, SV("c"))) {
+    if (!sv_is_null(code->lang)) {
         long output_len;
         const char* error;
 
@@ -75,7 +79,9 @@ void bl_block_to_html(StringBuf* sb, const BlBlock* block) {
         sb_append(sb, SV("</h2>"));
         break;
     case BL_BLOCK_CODE:
+        sb_append(sb, SV("<div class=\"code-block\">"));
         code_block_to_html(sb, &block->as.code);
+        sb_append(sb, SV("</div>"));
         break;
     }
 
@@ -84,8 +90,7 @@ void bl_block_to_html(StringBuf* sb, const BlBlock* block) {
 
 static bool is_block_element(BlBlockKind kind) {
     return kind == BL_BLOCK_H1
-        || kind == BL_BLOCK_H2
-        || kind == BL_BLOCK_CODE;
+        || kind == BL_BLOCK_H2;
 }
 
 void bl_blocks_to_html(StringBuf* sb, const BlBlocks* blocks) {
