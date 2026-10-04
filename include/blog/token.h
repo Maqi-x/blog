@@ -25,8 +25,10 @@ typedef enum {
 typedef struct {
     BlTokenType type;
     StringView lexeme;
+    usize unescaped_len;
     uint line, col;
 } BlToken;
 
 StringView bl_token_type_name(BlTokenType tt);
+StringView bl_token_unescape(BlToken token);
 void bl_token_print(BlToken token, FILE* out);

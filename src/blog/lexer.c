@@ -71,19 +71,20 @@ static StringView take_line(BlLexer* lexer) {
 }
 
 static BlToken make_token_ex(
-    const BlLexer* lexer, BlTokenType type,
+    const BlLexer* lexer, BlTokenType type, usize unescaped_len,
     uint start, uint line, uint col
 ) {
     return (BlToken) {
         .type   = type,
         .lexeme = sv_slice(lexer->input, start, lexer->pos),
+        .unescaped_len = unescaped_len,
         .line   = line,
         .col    = col,
     };
 }
 
 static BlToken make_token(const BlLexer* lexer, BlTokenType type, uint start) {
-    return make_token_ex(lexer, type, start, lexer->line, lexer->col);
+    return make_token_ex(lexer, type, lexer->pos - start, start, lexer->line, lexer->col);
 }
 
 // the helpers.
@@ -257,7 +258,19 @@ static BlToken lex_text(BlLexer* lexer) {
     uint col   = lexer->col;
     uint start = lexer->pos;
 
+    usize unescaped_len = 0;
     while (!is_at_end(lexer)) {
+        if (peek(lexer) == '\\') {
+            advance(lexer);
+            if (is_at_end(lexer)) {
+                bl_error("%u:%u: expected a character after \\", lexer->line, lexer->col);
+            }
+
+            advance(lexer);
+            unescaped_len++;
+            continue;
+        }
+
         bool is_special =
             peek(lexer) == '\n'
          || peek(lexer) == '*'
@@ -266,6 +279,7 @@ static BlToken lex_text(BlLexer* lexer) {
 
         if (is_special) break;
         advance(lexer);
+        unescaped_len++;
     }
-    return make_token_ex(lexer, BL_TT_TEXT, start, line, col);
+    return make_token_ex(lexer, BL_TT_TEXT, unescaped_len, start, line, col);
 }

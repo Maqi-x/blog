@@ -1,4 +1,28 @@
 #include <blog/token.h>
+#include <blog/error.h>
+
+#include <stdlib.h>
+
+StringView bl_token_unescape(BlToken token) {
+    if (token.lexeme.len == token.unescaped_len) {
+        return token.lexeme;
+    }
+
+    char* data = malloc(token.unescaped_len);
+    if (data == NULL) {
+        bl_error("memory allocation failed");
+    }
+
+    usize out = 0;
+    for (usize i = 0; i < token.lexeme.len; ++i) {
+        if (token.lexeme.data[i] == '\\') {
+            ++i;
+        }
+        data[out++] = token.lexeme.data[i];
+    }
+
+    return sv_from_data_and_len(data, token.unescaped_len);
+}
 
 StringView bl_token_type_name(BlTokenType tt) {
     switch (tt) {
