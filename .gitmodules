@@ -7,3 +7,6 @@
 [submodule "deps/argparse"]
 	path = deps/argparse
 	url = https://github.com/cofyc/argparse.git
+[submodule "deps/c2html"]
+	path = deps/c2html
+	url = https://github.com/cozis/c2html.git

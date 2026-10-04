@@ -31,13 +31,13 @@ ARGPARSE_SRC := $(DEPS_DIR)/argparse/argparse.c
 ARGPARSE_OBJ := $(patsubst %.c,$(OBJ_ROOT_DIR)/%.o,$(ARGPARSE_SRC))
 
 CSTD     := -std=c11
-WARNINGS := -Wall -Wextra -Werror=implicit-fallthrough
+WARNINGS := -Wall -Wextra -Werror=implicit-fallthrough -Wno-unterminated-string-initialization
 
 CFLAGS_COMMON := \
 	$(CSTD) $(WARNINGS) \
 	-I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/tools -I$(GEN_DIR) \
 	-I$(DEPS_DIR)/strlib/src -I$(DEPS_DIR)/vector \
-	-I$(DEPS_DIR)/argparse
+	-I$(DEPS_DIR)/argparse -I$(DEPS_DIR)/c2html
 
 ifeq ($(BUILD),debug)
 	CFLAGS  := $(CFLAGS_COMMON) -Og -g -fsanitize=address,undefined

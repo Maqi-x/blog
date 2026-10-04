@@ -26,16 +26,18 @@ typedef enum {
 } BlBlockKind;
 
 typedef struct {
+    StringView lang;
+    StringView text;
+} BlCode;
+
+typedef struct {
     BlBlockKind kind;
     union {
         // for h1, h2 and text
         BlParts parts;
 
         // for code blocks
-        struct {
-            StringView lang;
-            StringView text;
-        } code;
+        BlCode code;
     } as;
 } BlBlock;
 

@@ -2,7 +2,8 @@
 <html>
   <head>
     <title>${ escape(post.meta.title); }$</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../c2h.css">
   </head>
   <body>
     <a href="../../index.html">Back to posts list</a>

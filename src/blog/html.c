@@ -1,4 +1,6 @@
 #include <blog/html.h>
+#include <blog/error.h>
+#include <c2html.h>
 
 void bl_escape_html(StringBuf* sb, StringView text) {
     for (usize i = 0; i < text.len; ++i) {
@@ -51,10 +53,26 @@ void bl_block_to_html(StringBuf* sb, const BlBlock* block) {
         sb_append(sb, SV("</h2>"));
         break;
     case BL_BLOCK_CODE:
-        // TODO: syntax highlighting
-        (void) block->as.code.lang;
         sb_append(sb, SV("<pre><code>"));
-        bl_escape_html(sb, block->as.code.text);
+
+        const BlCode* code = &block->as.code;
+        if (sv_eql(code->lang, SV("c"))) {
+            long output_len;
+            const char* error;
+
+            char* output =
+                c2html(code->text.data, code->text.len, "c2h-", &output_len, &error);
+
+            if (error != NULL) {
+                bl_error("c2html error: %s", error);
+            }
+
+            sb_append(sb, sv_from_data_and_len(output, output_len));
+            free(output);
+        } else {
+            // TODO: maybe highlightning for some other languages in the future.
+            bl_escape_html(sb, code->text);
+        }
         sb_append(sb, SV("</code></pre>"));
         break;
     }
