@@ -1,6 +1,8 @@
 build/
 out/
 
+__pycache__/
+
 .cache/
 compile_flags.txt
 compile_commands.json

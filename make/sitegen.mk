@@ -9,7 +9,9 @@ SITEGEN_INDEX_OBJ := $(OBJ_ROOT_DIR)/src/tools/sitegen/index.o
 SITEGEN_POST_OBJ  := $(OBJ_ROOT_DIR)/src/tools/sitegen/post.o
 SITEGEN_INDEX     := $(BIN_DIR)/sitegen-index
 SITEGEN_POST      := $(BIN_DIR)/sitegen-post
-SITEGEN_DEPS      := $(DEP_ROOT_DIR)/src/tools/sitegen/index.d \
+
+SITEGEN_DEPS      := \
+	$(DEP_ROOT_DIR)/src/tools/sitegen/index.d \
 	$(DEP_ROOT_DIR)/src/tools/sitegen/post.d
 
 .PHONY: dist serve
@@ -18,7 +20,9 @@ tools: $(SITEGEN_INDEX) $(SITEGEN_POST)
 dist: $(DIST_FILES) $(DIST_DIR)/index.html $(POST_PAGES)
 
 serve: dist
-	python3 -m http.server 8000 --directory $(DIST_DIR)
+	$(PY) -m http.server 8000 --directory $(DIST_DIR)
+dev:
+	$(PY) $(SCRIPTS_DIR)/dev-server.py $(BUILD)
 
 $(GEN_DIR)/%.h: $(PAGE_DIR)/%.yate $(BIN_DIR)/yate
 	@mkdir -p $(dir $@)

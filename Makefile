@@ -1,5 +1,6 @@
 CC ?= cc
 AR ?= ar
+PY ?= python3
 
 BUILD ?= release
 
@@ -10,6 +11,7 @@ rwildcard = \
 SRC_DIR     := src
 DEPS_DIR    := deps
 INCLUDE_DIR := include
+SCRIPTS_DIR := scripts
 PAGE_DIR    := page
 GEN_DIR     := build/gen
 
