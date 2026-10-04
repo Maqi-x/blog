@@ -56,14 +56,25 @@ void bl_block_to_html(StringBuf* sb, const BlBlock* block) {
         sb_append(sb, SV("<pre><code>"));
         bl_escape_html(sb, block->as.code.text);
         sb_append(sb, SV("</code></pre>"));
+        break;
     }
 
-    sb_append(sb, SV("<br>"));
     return;
+}
+
+static bool is_block_element(BlBlockKind kind) {
+    return kind == BL_BLOCK_H1
+        || kind == BL_BLOCK_H2
+        || kind == BL_BLOCK_CODE;
 }
 
 void bl_blocks_to_html(StringBuf* sb, const BlBlocks* blocks) {
     for (const BlBlock* b = blocks->begin; b < blocks->end; ++b) {
         bl_block_to_html(sb, b);
+
+        bool has_next = (b < blocks->end - 1);
+        if (has_next && !is_block_element(b->kind) && !is_block_element((b + 1)->kind)) {
+            sb_append(sb, SV("<br>"));
+        }
     }
 }
