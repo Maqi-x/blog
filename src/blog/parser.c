@@ -109,6 +109,8 @@ static void push_code_block(BlParser* parser, StringView content) {
         text = sv_slice(content, i, content.len);
     }
 
+    text = sv_trim_suffix(text, SV("\n"));
+
     PUSH_BLOCK(&parser->blocks, {
         .kind = BL_BLOCK_CODE,
         .as.code = {
