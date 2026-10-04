@@ -42,26 +42,36 @@ static const char* const usages[] = {
     NULL,
 };
 
-void _print_escaped(StringView s, FILE* output) {
+void _print_escaped(StringView s, FILE* out) {
     StringBuf sb;
     sb_init(&sb);
     bl_escape_html(&sb, s);
-    sv_print(sb_view(&sb), output);
+    sv_print(sb_view(&sb), out);
     sb_free(&sb);
 }
 
-void render(const char* input_path, FILE* output) {
-    #define soutput(s) fputs(s, output)
-    #define output(s) sv_print(s, output)
-    #define escape(s) _print_escaped(s, output)
+void _print_htmlified(const BlBlocks* blocks, FILE* out) {
+    StringBuf sb;
+    sb_init(&sb);
+    bl_blocks_to_html(&sb, blocks);
+    sv_print(sb_view(&sb), out);
+    sb_free(&sb);
+}
+
+void render(const char* input_path, FILE* out) {
+    #define soutput(s) fputs(s, out)
+    #define output(s) sv_print(s, out)
+    #define escape(s) _print_escaped(s, out)
 
 #if RENDER_MODE == RENDER_INDEX
     BlBlog blog = {0};
     bl_discover(&blog, input_path);
     #include TEMPLATE_HEADER
 #elif RENDER_MODE == RENDER_POST
+    #define htmlify(b) _print_htmlified(&b, out)
     BlPost post = bl_post_open(input_path);
     #include TEMPLATE_HEADER
+    #undef htmlify
 #endif
 
     #undef escape
