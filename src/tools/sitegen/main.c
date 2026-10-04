@@ -44,6 +44,7 @@ static const char* const usages[] = {
 
 void _print_escaped(StringView s, FILE* output) {
     StringBuf sb;
+    sb_init(&sb);
     bl_escape_html(&sb, s);
     sv_print(sb_view(&sb), output);
     sb_free(&sb);

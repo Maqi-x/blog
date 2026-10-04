@@ -39,7 +39,7 @@ void yate_translate(const char* input_path, FILE* out) {
         bl_error("failed to read the input file");
     }
 
-    fprintf(out, "// GENERATED FROM %s. do not modify directly.\n\n", input_path);
+    fprintf(out, "// GENERATED FROM %s. do not modify directly.\n", input_path);
 
     bool code = false;
     bool code_inline;
@@ -56,12 +56,12 @@ void yate_translate(const char* input_path, FILE* out) {
         if (brand_new_line && c1 == '$') {
             leave_output(out, &in_output_stmt);
             brand_new_line = false;
-            code = true, code_inline = true;
+            code = true, code_inline = false;
             continue;
         } else if (c1 == '$' && c2 == '{') {
             leave_output(out, &in_output_stmt);
             brand_new_line = false;
-            code = true, code_inline = false;
+            code = true, code_inline = true;
             i += 1; // to skip the $ sign
             continue;
         } else if (!isspace((uchar)c1)) {
@@ -72,10 +72,15 @@ void yate_translate(const char* input_path, FILE* out) {
             brand_new_line = true;
 
         if (code) {
-            if (code_inline && c1 == '\n') {
+            if (!code_inline && c1 == '\n') {
+                // i know this is very inefficient,
+                // but it works.
+                enter_output(out, &in_output_stmt);
+                cescape('\n', out);
+                leave_output(out, &in_output_stmt);
                 code = false;
                 continue;
-            } else if (!code_inline && c1 == '}' && c2 == '$') {
+            } else if (code_inline && c1 == '}' && c2 == '$') {
                 code = false;
                 i += 1; // to skip the } brace
                 continue;
