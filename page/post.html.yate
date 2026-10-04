@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../style.css">
   </head>
   <body>
-    <a href="../index.html">Back to posts list</a>
+    <a href="../../index.html">Back to posts list</a>
     <h1>${ escape(post.meta.title); }$</h1>
     <p>${ escape(post.meta.desc); }$</p>
     <br>

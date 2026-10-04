@@ -2,7 +2,7 @@ DIST_DIR   := out/dist
 PAGE_FILES := $(shell find $(PAGE_DIR) -type f ! -name '*.yate')
 DIST_FILES := $(patsubst $(PAGE_DIR)/%,$(DIST_DIR)/%,$(PAGE_FILES))
 POST_SRCS  := $(wildcard content/*.post)
-POST_PAGES := $(patsubst content/%.post,$(DIST_DIR)/posts/%.html,$(POST_SRCS))
+POST_PAGES := $(patsubst content/%.post,$(DIST_DIR)/posts/%/index.html,$(POST_SRCS))
 
 SITEGEN_SRC       := $(SRC_DIR)/tools/sitegen/main.c
 SITEGEN_INDEX_OBJ := $(OBJ_ROOT_DIR)/src/tools/sitegen/index.o
@@ -36,7 +36,7 @@ $(DIST_DIR)/index.html: $(SITEGEN_INDEX) $(GEN_DIR)/index.html.h $(POST_PAGES)
 	@mkdir -p $(dir $@)
 	$(SITEGEN_INDEX) -i content -o $@
 
-$(DIST_DIR)/posts/%.html: content/%.post $(SITEGEN_POST) $(GEN_DIR)/post.html.h
+$(DIST_DIR)/posts/%/index.html: content/%.post $(SITEGEN_POST) $(GEN_DIR)/post.html.h
 	@mkdir -p $(dir $@)
 	$(SITEGEN_POST) -i $< -o $@
 

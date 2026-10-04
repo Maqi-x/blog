@@ -18,7 +18,7 @@
     <ul>
       $for (const BlPost* post = blog.begin; post < blog.end; ++post) {
         <li>
-          <a href="posts/${ escape(post->meta.id); }$.html">
+          <a href="posts/${ escape(post->meta.id); }$">
             $escape(post->meta.title);
           </a>
         </li>
