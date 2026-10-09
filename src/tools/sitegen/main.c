@@ -26,12 +26,12 @@
     #ifdef _LSP
         #define MODE MODE_INDEX
     #else
-        #error "render mode not specified"
+        #error render mode not specified
     #endif
 #endif
 
 #if MODE != MODE_GENERIC && MODE != MODE_INDEX && MODE != MODE_POST
-    #error "unknown render more. use 0 for generic, 1 for index and 2 for post"
+    #error unknown render more. use 0 for generic, 1 for index and 2 for post
 #endif
 
 static const char* const usages[] = {
