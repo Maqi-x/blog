@@ -4,7 +4,7 @@ DIST_FILES := $(patsubst $(PAGE_DIR)/%,$(DIST_DIR)/%,$(PAGE_FILES))
 POST_SRCS  := $(wildcard content/*.post)
 POST_PAGES := $(patsubst content/%.post,$(DIST_DIR)/posts/%/index.html,$(POST_SRCS))
 
-SITEGEN_SRC         := $(SRC_DIR)/tools/sitegen/main.c
+SITEGEN_SRC := $(SRC_DIR)/tools/sitegen/main.c
 
 SITEGEN_NAVBAR_OBJ := $(OBJ_ROOT_DIR)/src/tools/sitegen/generic.o
 SITEGEN_INDEX_OBJ  := $(OBJ_ROOT_DIR)/src/tools/sitegen/index.o
@@ -14,11 +14,11 @@ SITEGEN_NAVBAR_DEP := $(DEP_ROOT_DIR)/src/tools/sitegen/generic.d
 SITEGEN_INDEX_DEP  := $(DEP_ROOT_DIR)/src/tools/sitegen/index.d
 SITEGEN_POST_DEP   := $(DEP_ROOT_DIR)/src/tools/sitegen/post.d
 
-SITEGEN_NAVBAR     := $(BIN_DIR)/sitegen-generic
-SITEGEN_INDEX      := $(BIN_DIR)/sitegen-index
-SITEGEN_POST       := $(BIN_DIR)/sitegen-post
+SITEGEN_NAVBAR := $(BIN_DIR)/sitegen-generic
+SITEGEN_INDEX  := $(BIN_DIR)/sitegen-index
+SITEGEN_POST   := $(BIN_DIR)/sitegen-post
 
-SITEGEN_DEPS      := \
+SITEGEN_DEPS := \
 	$(DEP_ROOT_DIR)/src/tools/sitegen/index.d \
 	$(DEP_ROOT_DIR)/src/tools/sitegen/post.d
 
