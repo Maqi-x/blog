@@ -32,8 +32,32 @@ void bl_part_to_html(StringBuf* sb, const BlPart* part) {
 }
 
 void bl_parts_to_html(StringBuf* sb, const BlParts* parts) {
+    StringView active_url = SV_NULL;
+    bool in_link = false;
+
     for (const BlPart* p = parts->begin; p < parts->end; ++p) {
+        bool is_link = (p->flags & BL_PART_LINK) != 0;
+
+        if (in_link && (!is_link || !sv_eql(p->url, active_url))) {
+            sb_append(sb, SV("</a>"));
+            in_link = false;
+            active_url = SV_NULL;
+        }
+
+        // advanced logic for merging multiple link parts into a single html element
+        if (is_link && !in_link) {
+            sb_append(sb, SV("<a href=\""));
+            bl_escape_html(sb, p->url);
+            sb_append(sb, SV("\">"));
+            in_link = true;
+            active_url = p->url;
+        }
+
         bl_part_to_html(sb, p);
+    }
+
+    if (in_link) {
+        sb_append(sb, SV("</a>"));
     }
 }
 

@@ -61,6 +61,11 @@ static void print_part_flags(BlPartFlags flags, FILE* out) {
         fputs("mono", out);
         printed = true;
     }
+    if (flags & BL_PART_LINK) {
+        if (printed) fputc('|', out);
+        fputs("link", out);
+        printed = true;
+    }
 
     if (!printed)
         fputs("plain", out);
@@ -110,6 +115,10 @@ void bl_post_print(const BlPost* post, const char* pre, FILE* out) {
             print_part_flags(part->flags, out);
             fputs("] ", out);
             sv_print(part->content, out);
+            if (part->flags & BL_PART_LINK) {
+                fputs(" -> ", out);
+                sv_print(part->url, out);
+            }
             fputc('\n', out);
         }
     }

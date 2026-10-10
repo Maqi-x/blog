@@ -62,6 +62,29 @@ static void push_text_part(BlParser* parser, StringView content, BlPartFlags fla
     });
 }
 
+static bool parse_inline_part(BlParser* parser, BlToken tok) {
+    switch (tok.type) {
+    case BL_TT_TEXT:
+        push_text_part(parser, bl_token_unescape(tok), 0);
+        return true;
+    case BL_TT_CODE_INLINE:
+        push_text_part(parser, tok.lexeme, BL_PART_MONO);
+        return true;
+    case BL_TT_SOFTBREAK:
+        if (VECTOR_SIZE(&parser->parts) != 0)
+            push_text_part(parser, SV(" "), 0);
+        return true;
+    case BL_TT_BOLD:
+        parser->pf ^= BL_PART_BOLD;
+        return true;
+    case BL_TT_ITALIC:
+        parser->pf ^= BL_PART_ITALIC;
+        return true;
+    default:
+        return false;
+    }
+}
+
 static void parse_attr(BlParser* parser, BlToken attr, BlPostMeta* meta) {
     BlToken value = bl_parser_expect(parser, BL_TT_TEXT);
     StringView text = sv_trim_space(bl_token_unescape(value));
@@ -120,24 +143,84 @@ static void push_code_block(BlParser* parser, StringView content) {
     });
 }
 
+static void skip_directive_whitespace(BlParser* parser) {
+    while (check(parser, BL_TT_SOFTBREAK) ||
+           (check(parser, BL_TT_TEXT) && sv_all(peek(parser).lexeme, sl_is_space))) {
+        advance(parser);
+    }
+}
+
+static void parse_link_dir(BlParser* parser) {
+    skip_directive_whitespace(parser);
+
+    BlToken url = peek(parser);
+    if (url.type != BL_TT_CODE_INLINE && url.type != BL_TT_CODE_BLOCK) {
+        bl_error(
+            "%u:%u: url argument must be a code block",
+            url.line, url.col
+        );
+    }
+    advance(parser);
+
+    skip_directive_whitespace(parser);
+    if (check(parser, BL_TT_DIR_END)) {
+        advance(parser);
+        PUSH_PART(&parser->parts, {
+            .content = url.lexeme,
+            .url = url.lexeme,
+            .flags = BL_PART_LINK,
+        });
+        return;
+    }
+
+    // optional label as the second argument
+    skip_directive_whitespace(parser);
+    bl_parser_expect(parser, BL_TT_ARG_SEP);
+    usize start = VECTOR_SIZE(&parser->parts);
+
+    while (!check(parser, BL_TT_DIR_END) && !check(parser, BL_TT_EOF)) {
+        BlToken tok = advance(parser);
+        if (!parse_inline_part(parser, tok)) {
+            bl_error(
+                "%u:%u: unexpected token "SV_FMT" in link directive",
+                tok.line, tok.col, SV_FARG(bl_token_type_name(tok.type))
+            );
+        }
+    }
+
+    bl_parser_expect(parser, BL_TT_DIR_END);
+
+    // hack, but works.
+    for (usize i = start; i < VECTOR_SIZE(&parser->parts); ++i) {
+        parser->parts.begin[i].flags |= BL_PART_LINK;
+        parser->parts.begin[i].url = url.lexeme;
+    }
+}
+
+static void parse_directive(BlParser* parser, BlToken dir) {
+    if (sv_eql(dir.lexeme, SV("link"))) {
+        return parse_link_dir(parser);
+    } else {
+        bl_error(
+            "%u:%u: unknown directive "SV_FMT,
+            dir.line, dir.col, SV_FARG(dir.lexeme)
+        );
+    }
+}
+
 BlPost bl_parse_post(BlParser* parser) {
     BlPostMeta meta = { 0 };
 
     while (!check(parser, BL_TT_EOF)) {
         BlToken tok = advance(parser);
+
+        if (parse_inline_part(parser, tok)) {
+            continue;
+        }
+
         switch (tok.type) {
         case BL_TT_ATTR:
             parse_attr(parser, tok, &meta);
-            continue;
-        case BL_TT_TEXT:
-            push_text_part(parser, bl_token_unescape(tok), 0);
-            continue;
-        case BL_TT_CODE_INLINE:
-            push_text_part(parser, tok.lexeme, BL_PART_MONO);
-            continue;
-        case BL_TT_SOFTBREAK:
-            if (VECTOR_SIZE(&parser->parts) != 0)
-                push_text_part(parser, SV(" "), 0);
             continue;
         case BL_TT_HARDBREAK:
             flush(parser);
@@ -154,12 +237,9 @@ BlPost bl_parse_post(BlParser* parser) {
             flush(parser);
             push_code_block(parser, tok.lexeme);
             continue;
-        case BL_TT_BOLD:
-            parser->pf ^= BL_PART_BOLD;
-            break;
-        case BL_TT_ITALIC:
-            parser->pf ^= BL_PART_ITALIC;
-            break;
+        case BL_TT_DIR_BEGIN:
+            parse_directive(parser, tok);
+            continue;
         default:
             (void)tok.type;
         }

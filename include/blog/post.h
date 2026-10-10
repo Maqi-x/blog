@@ -9,11 +9,13 @@ typedef enum {
     BL_PART_BOLD   = 1 << 0, // *bold*
     BL_PART_ITALIC = 1 << 1, // /italic/
     BL_PART_MONO   = 1 << 2, // `code`
+    BL_PART_LINK   = 1 << 3, // [link ...]
 } BlPartFlags;
 
 typedef struct {
     BlPartFlags flags;
     StringView content;
+    StringView url;
 } BlPart;
 
 VECTOR_DECLARE(BlParts, bl_parts, BlPart);
