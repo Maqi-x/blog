@@ -1,0 +1,13 @@
+:title: Directives
+:desc: Test post
+
+[img `/test.png`]
+[url `https://github.com`]
+
+[url
+  Link to YouTube;
+  `https://youtube.com`]
+
+[include `comp/common.post`]
+
+\[escaped directive!\]

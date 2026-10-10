@@ -20,6 +20,10 @@ typedef enum {
 
     BL_TT_CODE_INLINE, //< `...`
     BL_TT_CODE_BLOCK,  //< ```...```
+
+    BL_TT_DIR_BEGIN,   //< [dir
+    BL_TT_ARG_SEP,     //< ;
+    BL_TT_DIR_END,     //< ]
 } BlTokenType;
 
 typedef struct {

@@ -42,6 +42,10 @@ StringView bl_token_type_name(BlTokenType tt) {
 
     case BL_TT_CODE_INLINE: return SV("code-inline");
     case BL_TT_CODE_BLOCK:  return SV("code-block");
+
+    case BL_TT_DIR_BEGIN:   return SV("dir-begin");
+    case BL_TT_ARG_SEP:     return SV("arg-sep");
+    case BL_TT_DIR_END:     return SV("dir-end");
     }
 
     bl_unreachable();

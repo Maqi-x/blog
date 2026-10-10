@@ -89,6 +89,7 @@ static BlToken make_token(const BlLexer* lexer, BlTokenType type, uint start) {
 
 // the helpers.
 static BlToken
+    lex_dir(BlLexer* lexer),
     lex_attr(BlLexer* lexer),
     lex_text(BlLexer* lexer),
     lex_code(BlLexer* lexer, BlTokenType type, const char* name),
@@ -171,11 +172,67 @@ BlToken bl_lexer_next(BlLexer* lexer) {
     if (peek(lexer) == '/')
         return advance(lexer), make_token(lexer, BL_TT_ITALIC, start);
 
+    // [directive
+    if (peek(lexer) == '[')
+        return lex_dir(lexer);
+
+    // ]
+    if (peek(lexer) == ']' && lexer->directive_depth > 0) {
+        uint line = lexer->line;
+        uint col = lexer->col;
+        advance(lexer);
+        lexer->directive_depth--;
+        return (BlToken) {
+            .type = BL_TT_DIR_END,
+            .line = line,
+            .col = col,
+        };
+    }
+
+    // ;
+    if (peek(lexer) == ';' && lexer->directive_depth > 0) {
+        uint line = lexer->line;
+        uint col = lexer->col;
+        advance(lexer);
+        return (BlToken) {
+            .type = BL_TT_ARG_SEP,
+            .line = line,
+            .col = col,
+        };
+    }
+
     return lex_text(lexer);
 
 eof:
     return (BlToken) {
         .type = BL_TT_EOF, .lexeme = SV_NULL, .line = lexer->line,
+    };
+}
+
+static BlToken lex_dir(BlLexer* lexer) {
+    uint line = lexer->line;
+    uint col = lexer->col;
+    advance(lexer); // '['
+
+    uint name_start = lexer->pos;
+    while (!is_at_end(lexer)) {
+        char c = peek(lexer);
+        if (isspace(c) || c == ']' || c == ';')
+            break;
+        advance(lexer);
+    }
+
+    if (lexer->pos == name_start)
+        bl_error("%u:%u: expected directive name", line, col);
+
+    StringView name = sv_slice(lexer->input, name_start, lexer->pos);
+    lexer->directive_depth++;
+
+    return (BlToken) {
+        .type = BL_TT_DIR_BEGIN,
+        .lexeme = name,
+        .line = line,
+        .col = col,
     };
 }
 
@@ -275,7 +332,12 @@ static BlToken lex_text(BlLexer* lexer) {
             peek(lexer) == '\n'
          || peek(lexer) == '*'
          || peek(lexer) == '/'
-         || peek(lexer) == '`';
+         || peek(lexer) == '`'
+         || peek(lexer) == '[';
+
+        if (lexer->directive_depth > 0)
+            is_special |= peek(lexer) == ']'
+                       || peek(lexer) == ';';
 
         if (is_special) break;
         advance(lexer);
