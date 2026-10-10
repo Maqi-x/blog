@@ -59,17 +59,17 @@ $(SITEGEN_POST): $(SITEGEN_POST_OBJ) $(BLOG_LIB) $(ARGPARSE_OBJ)
 $(SITEGEN_NAVBAR_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/navbar.html.h
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(SITEGEN_NAVBAR_DEP))
-	$(CC) $(CFLAGS) -DMODE=1 -DTEMPLATE_HEADER=\"navbar.html.h\" \
+	$(CC) $(CFLAGS) -DMODE=1 -DTEMPLATE_HEADER=\"navbar.html.h\" -DBASE_URL='"$(BASE_URL)"' \
 		-MMD -MP -MF $(SITEGEN_NAVBAR_DEP) -c $< -o $@
 
 $(SITEGEN_INDEX_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/index.html.h $(GEN_DIR)/navbar.html.h
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(SITEGEN_INDEX_DEP))
-	$(CC) $(CFLAGS) -DMODE=1 -DTEMPLATE_HEADER=\"index.html.h\" \
+	$(CC) $(CFLAGS) -DMODE=1 -DTEMPLATE_HEADER=\"index.html.h\" -DBASE_URL='"$(BASE_URL)"' \
 		-MMD -MP -MF $(SITEGEN_INDEX_DEP) -c $< -o $@
 
 $(SITEGEN_POST_OBJ): $(SITEGEN_SRC) $(GEN_DIR)/post.html.h $(GEN_DIR)/navbar.html.h
 	@mkdir -p $(dir $@)
 	@mkdir -p $(dir $(SITEGEN_POST_DEP))
-	$(CC) $(CFLAGS) -DMODE=2 -DTEMPLATE_HEADER=\"post.html.h\" \
+	$(CC) $(CFLAGS) -DMODE=2 -DTEMPLATE_HEADER=\"post.html.h\" -DBASE_URL='"$(BASE_URL)"' \
 		-MMD -MP -MF $(SITEGEN_POST_DEP) -c $< -o $@

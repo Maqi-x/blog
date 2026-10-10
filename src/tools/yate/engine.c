@@ -53,16 +53,22 @@ void yate_translate(const char* input_path, FILE* out) {
                  ? template.data[i + 1]
                  : '\0';
 
-        if (brand_new_line && c1 == '$') {
+        if (c1 == '$' && c2 == '/') {
             leave_output(out, &in_output_stmt);
+            fputs("\nsoutput(BASE_URL);\n", out);
             brand_new_line = false;
-            code = true, code_inline = false;
+            i += 1; // skip the slash
             continue;
         } else if (c1 == '$' && c2 == '{') {
             leave_output(out, &in_output_stmt);
             brand_new_line = false;
             code = true, code_inline = true;
             i += 1; // to skip the $ sign
+            continue;
+        } else if (brand_new_line && c1 == '$') {
+            leave_output(out, &in_output_stmt);
+            brand_new_line = false;
+            code = true, code_inline = false;
             continue;
         } else if (!isspace((uchar)c1)) {
             brand_new_line = false;

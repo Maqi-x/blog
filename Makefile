@@ -3,6 +3,7 @@ AR ?= ar
 PY ?= python3
 
 BUILD ?= release
+BASE_URL ?= /
 
 rwildcard = \
 	$(foreach d,$(wildcard $(1)/*),$(call rwildcard,$(d),$(2))) \

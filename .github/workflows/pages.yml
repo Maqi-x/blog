@@ -14,6 +14,8 @@
   jobs:
     deploy:
       runs-on: ubuntu-latest
+      env:
+        BASE_URL: /${{ github.event.repository.name }}/
 
       environment:
         name: github-pages

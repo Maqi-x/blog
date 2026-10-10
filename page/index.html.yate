@@ -12,7 +12,7 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="$/index.css">
   </head>
   <body>
     $#include "navbar.html.h"
