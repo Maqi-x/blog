@@ -67,16 +67,16 @@ static void code_block_to_html(StringBuf* sb, const BlCode* code) {
     // way better than no highlighting at all.
     //if (sv_eql(code->lang, SV("c"))) {
     if (!sv_is_null(code->lang)) {
-        long output_len;
-        const char* error;
+        long output_len = 0;
+        const char* error = NULL;
 
         char* output = c2html(
             code->text.data, code->text.len,
             "c2h-", &output_len, &error
         );
 
-        if (error != NULL)
-            bl_error("c2html error: %s", error);
+        if (output == NULL)
+            bl_error("c2html: %s", error ?: "unknown error");
 
         sb_append(sb, sv_make(output, output_len));
         free(output);
