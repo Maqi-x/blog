@@ -54,7 +54,7 @@ static void code_block_to_html(StringBuf* sb, const BlCode* code) {
         if (error != NULL)
             bl_error("c2html error: %s", error);
 
-        sb_append(sb, sv_from_data_and_len(output, output_len));
+        sb_append(sb, sv_make(output, output_len));
         free(output);
     } else {
         sb_append(sb, SV("<pre><code>"));

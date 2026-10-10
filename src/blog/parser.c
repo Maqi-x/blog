@@ -64,7 +64,7 @@ static void push_text_part(BlParser* parser, StringView content, BlPartFlags fla
 
 static void parse_attr(BlParser* parser, BlToken attr, BlPostMeta* meta) {
     BlToken value = bl_parser_expect(parser, BL_TT_TEXT);
-    StringView text = sv_trim(bl_token_unescape(value), isspace);
+    StringView text = sv_trim_space(bl_token_unescape(value));
 
     if (sv_eql(attr.lexeme, SV("title"))) {
         meta->title = text;

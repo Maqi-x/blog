@@ -21,7 +21,7 @@ StringView bl_token_unescape(BlToken token) {
         data[out++] = token.lexeme.data[i];
     }
 
-    return sv_from_data_and_len(data, token.unescaped_len);
+    return sv_make(data, token.unescaped_len);
 }
 
 StringView bl_token_type_name(BlTokenType tt) {
