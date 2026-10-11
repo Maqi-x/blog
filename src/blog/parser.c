@@ -154,9 +154,9 @@ static void parse_link_dir(BlParser* parser) {
     skip_directive_whitespace(parser);
 
     BlToken url = peek(parser);
-    if (url.type != BL_TT_CODE_INLINE && url.type != BL_TT_CODE_BLOCK) {
+    if (url.type != BL_TT_CODE_INLINE) {
         bl_error(
-            "%u:%u: url argument must be a code block",
+            "%u:%u: url argument must be an inline code block",
             url.line, url.col
         );
     }
