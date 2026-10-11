@@ -1,0 +1,35 @@
+:root {
+  --color-background: #080808;
+  --color-surface: #030303;
+  --color-border: #151521;
+  --color-accent: rgba(255, 255, 255, 0.3);
+  --color-text: #e5ebf5;
+  --color-link: #3fbff8;
+  --color-link-hover: #7dd3ff;
+}
+
+body {
+  margin: 0;
+  padding: 32px 32px 48px 96px;
+  color: var(--color-text);
+  background: var(--color-background);
+  font-family: 'Clarity City', sans-serif;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-ligatures: none;
+}
+
+a {
+  color: var(--color-link);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+

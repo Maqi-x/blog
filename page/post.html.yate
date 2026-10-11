@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${ escape(post.meta.title); }$</title>
 
-    <link rel="stylesheet" href="$/index.css">
+    <link rel="stylesheet" href="$/styles.css">
     <link rel="stylesheet" href="$/c2h.css">
   </head>
   <body>
